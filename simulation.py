@@ -9,12 +9,12 @@ def user_input():
 
 def calculate_initial_y_velocity(Ball_Speed, Launch_Angle):
     Initial_Y_Velocity = (Ball_Speed * math.sin(Launch_Angle))
-    print(f"Initial Y Velocity = {Initial_Y_Velocity:.3f} m/s")
+    print(f"Initial Y Velocity (Meters) = {Initial_Y_Velocity:.3f} m/s")
     return Initial_Y_Velocity
 
 def calculate_initial_x_velocity(Ball_Speed, Launch_Angle):
     Initial_X_Velocity = (Ball_Speed * math.cos(Launch_Angle))
-    print(f"Initial X Velocity = {Initial_X_Velocity:.3f} m/s")
+    print(f"Initial X Velocity (Meters) = {Initial_X_Velocity:.3f} m/s")
     return Initial_X_Velocity
 
 def calculate_peak_height(Initial_Y_Velocity):
@@ -52,7 +52,7 @@ def main():
     Time = calculate_time(Initial_Y_Velocity)
     Carry_Distance_Meters, Carry_Distance_Yards = calculate_distance(Initial_X_velocity, Time)
 
-    # summary
+# ----------- Summary ----------- # 
     print("\n--- Summary ---")
     print(f"Peak height: {Peak_Height:.3f} m")
     print(f"Time of flight: {Time:.3f} s")
@@ -61,5 +61,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# ...existing code...
-
