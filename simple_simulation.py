@@ -50,7 +50,7 @@ while y_position >= 0:
 
   S = (backspin *(D /2)) / mag_velocity
 
-  Cl = 0.0504 + 1.2031*S - 1.1490*S**2
+  Cl = 0.0504 + 1.2031*S - 1.1490*S**2 
 
   Faero =  0.5 * rho * area * mag_velocity**2
   Df = Faero * Cd
@@ -59,19 +59,16 @@ while y_position >= 0:
   alpha = math.atan2(y_velocity, x_velocity)
 
   Ax = (1 / mass) *(-Df * math.cos(alpha)- Lf * math.sin(alpha))
-  Ay = (1 / mass) *(-Df * math.sin(alpha) - Lf * math.cos(alpha)) - G
+  Ay = (1 / mass) *(-Df * math.sin(alpha) + Lf * math.cos(alpha)) - G
   
-  x_velocity = x_velocity + (Ax * DeltaT)
-  y_velocity = y_velocity + (Ay * DeltaT)
-
   x_position = x_position + (x_velocity * DeltaT)
   y_position = y_position + (y_velocity * DeltaT)
 
-  
+  x_velocity = x_velocity + (Ax * DeltaT)
+  y_velocity = y_velocity + (Ay * DeltaT)
 
   backspin = backspin * (1 - Decayrate * DeltaT)
 
 
 print(f"X position: {x_position}")
-
 
