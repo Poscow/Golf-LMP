@@ -1,125 +1,77 @@
 import math
+# ____the GOOD ENOUGH MODEL____ 
 
-# ----------- Variables ----------- #
-Ball_Speed = float(input("Enter Ball Speed (m/s): "))
+Ballspeed = float(input(f"Ball Speed: "))
 
-# Convert degrees to radians
-Launch_Angle = float(input("Enter Launch Angle (degrees): ")) * (math.pi/180)
+Launchangle = float(input(f"launch angle: "))*(math.pi/180) #into radians
 
-# Backspin is usually in RPM, but your simplified model uses rad/s for 'S' calculation.
-# Assuming input is in RPM and converting to rad/s for consistency with physics models.
-BackSpin_RPM = float(input("Enter Backspin rate (RPM): "))
-Initial_Omega = BackSpin_RPM * (2 * math.pi / 60) # Convert RPM to rad/s
+backspin = float(input(f"Backspin: ")) *((2* math.pi) / 60) #into rad/s
 
-# --- Simple Projectile Motion (No Air Resistance) ---
-Initial_Y_Velocity = (Ball_Speed * math.sin(Launch_Angle))
-print(f"Initial Y Velocity = {Initial_Y_Velocity:.2f} m/s")
+x_velocity = math.cos(Launchangle) * Ballspeed
+y_velocity = math.sin(Launchangle) * Ballspeed
 
-Initial_X_Velocity = (Ball_Speed * math.cos(Launch_Angle))
-print(f"Initial X Velocity = {Initial_X_Velocity:.2f} m/s")
+# Constant Santiniack
+rho = 1.225 #density of the air at sea level
+mu = 1.81 * math.pow(10, -5) #dynamic Viscosity of the air
+D = 0.04267 #Diameter of the golf ball
+Afront = (math.pi * math.pow(D, 2)) / 4
+Cd = 0
+mass = 0.04593
+area = (D/2)**2 * math.pi
+DeltaT = 0.001
+x_position = 0
+y_position = 0.0000001
+Decayrate = 0.0005
+G = 9.81
 
-# Gravity (g) is 9.81 m/s^2, 2g is 19.62
-Peak_Height_No_Air = Initial_Y_Velocity**2 / (2 * 9.81)
-print(f"Peak Height (No Air) = {Peak_Height_No_Air:.2f} meters")
+while y_position >= 0: 
 
-# Time of flight is 2 * (time to apex)
-Time_No_Air = (Initial_Y_Velocity / 9.81) * 2
-print(f"Time of Flight (No Air) = {Time_No_Air:.2f} seconds")
+  mag_velocity = math.sqrt(math.pow(x_velocity, 2) + math.pow(y_velocity, 2)) 
 
-Carry_Distance_No_Air = (Initial_X_Velocity * Time_No_Air)
-print(f"Carry Distance (No Air) = {Carry_Distance_No_Air:.2f} meters")
+  #MR.REYNOLDS
 
-print("-" * 30)
-print("SIMULATION WITH AIR RESISTANCE:")
+  re = (rho * mag_velocity * D) / mu
 
-# --- Numerical Integration Setup ---
-# Initialize dynamic variables for the simulation
-vx = Initial_X_Velocity
-vy = Initial_Y_Velocity
-x = 0.0
-y = 0.000001 # Start slightly above zero to enter the loop
-max_height = 0.0
-current_omega = Initial_Omega # Current angular velocity (rad/s)
-
-# CONSTANTS
-DeltaT = 0.001 # Reduced time step for better accuracy
-Mass = 0.04593 # kg
-Radius = 0.0213 # m
-Gravity = -9.81 # m/s^2
-rho = 1.225 # Air density (kg/m^3) at sea level
-Area = math.pi * Radius**2
-
-# SIMPLIFIED MODEL FOR COEFICIENTS
-Cdbase = 0.25
-Cdfactor = 0.0025
-Clfactor = 3
-Decayrate = 0.0005 # Spin decay rate
-
-# --- Simulation Loop (Euler's Method) ---
-while y >= 0:
-    # Store current position for final carry distance if y goes negative
-    x_prev = x
-    y_prev = y
-
-    # 1. Calculate Forces
-    mag_velocity = math.sqrt(vx**2 + vy**2)
-
-    # Prevent division by zero if mag_velocity is zero
-    if mag_velocity == 0:
-        break 
-
-    # Spin Ratio (S): ratio of ball surface speed to flight speed
-    S = (Radius * current_omega) / mag_velocity
-
-    # Calculate Coefficients
-    Cdf = Cdbase + (Cdfactor * S)
-    Clf = Clfactor * S
-
-    # Calculate Force Magnitudes
-    Faero = 0.5 * rho * Area * mag_velocity**2
-    Df = Faero * Cdf # Drag Force
-    Lf = Faero * Clf # Lift Force (Magnus)
-
-    # 2. Acceleration Components
-    # Use math.atan2(vy, vx) to get the correct angle (alpha) in all quadrants
-    alpha = math.atan2(vy, vx)
+  if re < 1:
     
-    # Horizontal Acceleration (Drag and Lift components oppose forward motion)
-    Ax = (1 / Mass) * (-Df * math.cos(alpha) - Lf * math.sin(alpha))
-    
-    # Vertical Acceleration (Gravity down, Drag opposes motion, Lift up)
-    Ay = (1 / Mass) * (Mass * Gravity - Df * math.sin(alpha) + Lf * math.cos(alpha))
+     Cd = 24 / re #stokes flow
 
-    # 3. Update Velocity
-    vx_new = vx + (Ax * DeltaT)
-    vy_new = vy + (Ay * DeltaT)
+  if 1 <= re <= (2 * math.pow(10,4)):
 
-    # 4. Update Position (using new velocities for slightly better integration, or old for pure Euler)
-    # Using old velocities for pure Euler integration:
-    x_new = x + (vx * DeltaT)
-    y_new = y + (vy * DeltaT)
-    
-    # 5. Update Spin Decay
-    current_omega = current_omega * (1 - Decayrate * DeltaT)
-    
-    # 6. Update State Variables for Next Step
-    vx = vx_new
-    vy = vy_new
-    x = x_new
-    y = y_new
+     Cd = 0.5
 
-    # 7. Track Peak Height
-    max_height = max(max_height, y)
-    
-# --- Final Results ---
-# When the loop breaks (y <= 0), the final carry distance is x.
-Carry_Distance_Meters = x
+  if (2 * math.pow(10,4)) < re <=(8 * math.pow(10,4)):
 
-print(f"Calculated Carry Distance (Air) = {Carry_Distance_Meters:.2f} meters")
-print(f"Calculated Peak Height (Air) = {max_height:.2f} meters")
-print("-" * 30)
+     Cd = 0.22 -(0.000002 * (re - (2 * math.pow(10, 4))))
 
-print(f"Carry with air resistance and spin: {New_X_Position}")
+  if (8 * math.pow(10,4)) < re <= (3 * math.pow(10, 5)):
+      
+      Cd = 0.2
 
+  S = (backspin *(D /2)) / mag_velocity
+
+  Cl = 0.0504 + 1.2031*S - 1.1490*S**2
+
+  Faero =  0.5 * rho * area * mag_velocity**2
+  Df = Faero * Cd
+  Lf = Faero * Cl
+
+  alpha = math.atan2(y_velocity, x_velocity)
+
+  Ax = (1 / mass) *(-Df * math.cos(alpha)- Lf * math.sin(alpha))
+  Ay = (1 / mass) *(-Df * math.sin(alpha) - Lf * math.cos(alpha)) - G
+  
+  x_velocity = x_velocity + (Ax * DeltaT)
+  y_velocity = y_velocity + (Ay * DeltaT)
+
+  x_position = x_position + (x_velocity * DeltaT)
+  y_position = y_position + (y_velocity * DeltaT)
+
+  
+
+  backspin = backspin * (1 - Decayrate * DeltaT)
+
+
+print(f"X position: {x_position}")
 
 
