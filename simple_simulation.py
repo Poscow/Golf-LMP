@@ -65,14 +65,11 @@ print(f"\nCurrent simulation (cd={cd}, cl={cl}):")
 print(f"Range: {carry:.2f} m")
 print(f"Peak height: {peak:.2f} m")
 
-# Test all combinations of cd and cl (both 0.05 to 1.5)
-print(f"\n\nTesting all cd (0.05-1.50) and cl (0.05-1.50) combinations:\n")
-
-for cd_test in [i * 0.05 for i in range(1, 31)]:  # 0.05 to 1.50 in steps of 0.05
+for cd_test in [i * 0.025 for i in range(1,61)]:  
     print(f"\n--- cd = {cd_test:.2f} ---")
     print(f"{'cl':<8} {'Carry (m)':<12} {'Peak Height (m)':<15}")
     print("-" * 40)
     
-    for cl_test in [i * 0.05 for i in range(1, 31)]:  # 0.05 to 1.50 in steps of 0.05
+    for cl_test in [i * 0.025 for i in range(1, 21)]:  
         carry_test, peak_test = simulate_trajectory(mag_velocity, angle, spin_rate, cd_test, cl_test)
         print(f"{cl_test:<8.2f} {carry_test:<12.2f} {peak_test:<15.2f}")
